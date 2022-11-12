@@ -3,6 +3,8 @@ using CustomerAPI.Data;
 using CustomerAPI.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OpenApi;
+using Mapster;
+
 namespace CustomerAPI;
 
 public static class CustomerEndpoints
@@ -37,8 +39,7 @@ public static class CustomerEndpoints
                 return TypedResults.NotFound();
             }
 
-            existingCustomer.FirstName = updatedCustomer.FirstName;
-            existingCustomer.LastName = updatedCustomer.LastName;
+            updatedCustomer.Adapt(existingCustomer);
 
             await db.SaveChangesAsync();
 
