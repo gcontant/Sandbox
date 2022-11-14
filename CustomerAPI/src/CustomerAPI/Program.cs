@@ -6,10 +6,8 @@ using CustomerAPI;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<CustomerDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CustomerDbContext") ?? throw new InvalidOperationException("Connection string 'CustomerDbContext' not found."));
-    options.EnableSensitiveDataLogging();
-});
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CustomerDbContext") ?? throw new InvalidOperationException("Connection string 'CustomerDbContext' not found."))
+);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

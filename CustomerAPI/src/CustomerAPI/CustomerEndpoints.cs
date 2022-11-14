@@ -3,13 +3,28 @@ using CustomerAPI.Data;
 using CustomerAPI.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OpenApi;
+using CustomerAPI.EndpointFilters;
+
 namespace CustomerAPI;
 
 public static class CustomerEndpoints
 {
     public static void MapCustomerEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/customers").WithTags(nameof(Customer));
+        var group = routes.MapGroup("/customers")
+                .WithTags(nameof(Customer))
+                .AddEndpointFilter<RequestAuditorFilter>()
+                .AddEndpointFilterFactory((context, next) =>
+                {
+                    var loggerFactory = context.ApplicationServices.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger("PostRequestAuditor");
+                    return async (invocationContext) =>
+                    {
+                        var result = await next(invocationContext);
+                        logger.LogInformation($"[⚙️] Result from request: {result}");
+                        return result; 
+                    };
+                });
 
         group.MapGet("/", async (CustomerDbContext db) =>
         {
