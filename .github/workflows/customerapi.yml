@@ -28,7 +28,7 @@ jobs:
         username: ${{ secrets.SandboxContainerRegistry90210_USERNAME_BFD8 }}
         password: ${{ secrets.SandboxContainerRegistry90210_PASSWORD_BFD8 }}
     - name: Build and push container image to registry
-      run: dotnet publish .\CustomerAPI -c Release -r linux-x64 -p:PublishProfile=DefaultContainer -p:ContainerImageTag=${{ github.sha }} --no-self-contained -p:ContainerRegistry=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -bl
+      run: dotnet publish CustomerAPI -c Release -r linux-x64 -p:PublishProfile=DefaultContainer -p:ContainerImageTag=${{ github.sha }} --no-self-contained -p:ContainerRegistry=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -bl
     - name: Upload binlog for investigation
       uses: actions/upload-artifact@v3
       with:
