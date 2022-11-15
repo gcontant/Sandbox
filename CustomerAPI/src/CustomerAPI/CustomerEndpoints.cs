@@ -36,7 +36,7 @@ public static class CustomerEndpoints
             return await db.Customer.ToListAsync();
         })
         .WithName("GetAllCustomers")
-        .RequireAuthorization("customer_reader,customer_writer");
+        .RequireAuthorization("customer_reader");
 
         group.MapGet("/{id}", async Task<Results<Ok<Customer>, NotFound>> (Guid id, CustomerDbContext db) =>
         {
@@ -46,7 +46,7 @@ public static class CustomerEndpoints
                     : TypedResults.NotFound();
         })
         .WithName("GetCustomerById")
-        .RequireAuthorization("customer_reader,customer_writer");
+        .RequireAuthorization("customer_reader");
 
         group.MapPut("/{id}", async Task<Results<NotFound, NoContent>> (Guid id, Customer updatedCustomer, CustomerDbContext db) =>
         {

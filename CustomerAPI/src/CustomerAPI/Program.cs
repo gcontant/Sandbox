@@ -11,8 +11,8 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("customer_reader", policy => policy.RequireRole("customer").RequireClaim("permission", "read"))
-    .AddPolicy("customer_writer", policy => policy.RequireRole("customer").RequireClaim("permission", "write"));
+    .AddPolicy("customer_reader", policy => policy.RequireAssertion(context => context.User.IsInRole("customer") && (context.User.HasClaim(c => c.Type == "permission" && (c.Value == "read" || c.Value == "write")))))
+    .AddPolicy("customer_writer", policy => policy.RequireAssertion(context => context.User.IsInRole("customer") && (context.User.HasClaim(c => c.Type == "permission" && c.Value == "write"))));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
