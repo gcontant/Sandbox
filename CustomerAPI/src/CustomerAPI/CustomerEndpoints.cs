@@ -4,6 +4,8 @@ using CustomerAPI.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OpenApi;
 using CustomerAPI.EndpointFilters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 
 namespace CustomerAPI;
 
@@ -11,6 +13,8 @@ public static class CustomerEndpoints
 {
     public static void MapCustomerEndpoints(this IEndpointRouteBuilder routes)
     {
+
+
         var group = routes.MapGroup("/customers")
                 .WithTags(nameof(Customer))
                 .AddEndpointFilter<RequestAuditorFilter>()
@@ -22,16 +26,17 @@ public static class CustomerEndpoints
                     {
                         var result = await next(invocationContext);
                         logger.LogInformation($"[⚙️] Result from request: {result}");
-                        return result; 
+                        return result;
                     };
-                });
+                })
+                .EnableOpenApiWithAuthentication();
 
         group.MapGet("/", async (CustomerDbContext db) =>
         {
             return await db.Customer.ToListAsync();
         })
         .WithName("GetAllCustomers")
-        .WithOpenApi();
+        .RequireAuthorization("customer_reader,customer_writer");
 
         group.MapGet("/{id}", async Task<Results<Ok<Customer>, NotFound>> (Guid id, CustomerDbContext db) =>
         {
@@ -41,7 +46,7 @@ public static class CustomerEndpoints
                     : TypedResults.NotFound();
         })
         .WithName("GetCustomerById")
-        .WithOpenApi();
+        .RequireAuthorization("customer_reader,customer_writer");
 
         group.MapPut("/{id}", async Task<Results<NotFound, NoContent>> (Guid id, Customer updatedCustomer, CustomerDbContext db) =>
         {
@@ -60,7 +65,7 @@ public static class CustomerEndpoints
             return TypedResults.NoContent();
         })
         .WithName("UpdateCustomer")
-        .WithOpenApi();
+        .RequireAuthorization("customer_writer");
 
         group.MapPost("/", async (Customer customer, CustomerDbContext db) =>
         {
@@ -69,7 +74,7 @@ public static class CustomerEndpoints
             return TypedResults.Created($"/api/Customer/{customer.Id}", customer);
         })
         .WithName("CreateCustomer")
-        .WithOpenApi();
+        .RequireAuthorization("customer_writer");
 
         group.MapDelete("/{id}", async Task<Results<Ok<Customer>, NotFound>> (Guid id, CustomerDbContext db) =>
         {
@@ -83,6 +88,6 @@ public static class CustomerEndpoints
             return TypedResults.NotFound();
         })
         .WithName("DeleteCustomer")
-        .WithOpenApi();
+        .RequireAuthorization("customer_writer");
     }
 }
